@@ -19,9 +19,11 @@ namespace proj
         ArrayList imagesOnPath = new ArrayList();
         int viewedImageNum;
         string parentDirectory;
-        List<string> imageExtensions = new List<string> { ".JPG", ".JPE", ".BMP", ".GIF", ".PNG" };
+        List<string> imageExtensions = new List<string> { ".JPG", ".JPEG", ".BMP", ".GIF", ".PNG" };
         pixel[][] rawBytes;
 
+        //define a pixel[x, y]
+        //currently not used
         public struct pixel
         {
             public double r, g, b, y, u, v;
@@ -40,12 +42,15 @@ namespace proj
         public mainForm()
         {
             InitializeComponent();
+
         }
 
+        //handle the opening of any new file
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog file = new OpenFileDialog();
-            file.Filter = "Image Files|*.jpeg;*.jpg;*.png;*.gif|All Files|*.*";
+            //should match imageExtensions
+            file.Filter = "Image Files|*.jpeg;*.jpg;*.png;*.gif;*.bmp|All Files|*.*";
             file.Title = "Select a JPEG file";
 
             if (DialogResult.OK == file.ShowDialog())
@@ -68,6 +73,7 @@ namespace proj
             }
         }
 
+        //exit application button handle
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Application.Exit();
@@ -78,6 +84,7 @@ namespace proj
             openToolStripMenuItem_Click(sender, e);
         }
 
+        //handle the left button click event, which will traverse through all the images in the directory of a file that was opened
         private void leftButton_Click(object sender, EventArgs e)
         {
             if (imagesOnPath.Count != 0)
@@ -93,6 +100,7 @@ namespace proj
             }
         }
 
+        //handle the right button click event, which will traverse through all the images in the directory of a file that was opened
         private void rightButton_Click(object sender, EventArgs e)
         {
             if (imagesOnPath.Count != 0)
@@ -104,11 +112,13 @@ namespace proj
             }
         }
 
+        //save the img bitmap file in its current state
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             img.Save(imgName);
         }
 
+        //same as simply saving the file, but allow the user to provide the location to save to
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SaveFileDialog sfd = new SaveFileDialog();
@@ -191,31 +201,35 @@ namespace proj
             return rawBytes;
         }
 
-        private void roateLeftToolStripMenuItem_Click(object sender, EventArgs e)
+        //rotate image to the left
+        private void rotateLeftToolStripMenuItem_Click(object sender, EventArgs e)
         {
             img.RotateFlip(RotateFlipType.Rotate90FlipXY);
             pictureBox.Image = img;
         }
 
+        //rotate image to the right
         private void rotateRightToolStripMenuItem_Click(object sender, EventArgs e)
         {
             img.RotateFlip(RotateFlipType.Rotate90FlipNone);
             pictureBox.Image = img;
         }
 
-        private void flipHorizonatallyToolStripMenuItem_Click(object sender, EventArgs e)
+        //flip image vertically
+        private void flipVerticalToolStripMenuItem_Click(object sender, EventArgs e)
         {
             img.RotateFlip(RotateFlipType.RotateNoneFlipX);
             pictureBox.Image = img;
         }
 
+        //flip image horizontally
         private void horizontalFlipToolStripMenuItem_Click(object sender, EventArgs e)
         {
             img.RotateFlip(RotateFlipType.RotateNoneFlipY);
             pictureBox.Image = img;
         }
 
-
+        //call the free rotate form, which will let the user rotate an image at any angle and pad with the black color
         private void freeRotateToolStripMenuItem_Click(object sender, EventArgs e)
         {
             freeRotateForm rotateForm = new freeRotateForm(img);
@@ -230,6 +244,7 @@ namespace proj
             deleteToolStripMenuItem_Click(sender, e);
         }
 
+        //delete current image
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (imgName != null)
@@ -246,6 +261,7 @@ namespace proj
             }
         }
 
+        //shortcut keys to allow the user traverse through images
         private void mainForm_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Left)
@@ -259,5 +275,89 @@ namespace proj
             }
             
         }
+
+        //call the resize form, which will let the user resize the image
+        private void resizeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            resizeForm resizeform = new resizeForm(img);
+            resizeform.ShowDialog();
+
+            img = resizeform.img;
+            pictureBox.Image = img;
+        }
+
+        ////////////////////////////////////////
+        //CROPPING AND RECTANGLE SELECTION BEGIN
+        ////////////////////////////////////////
+        Point start;
+        bool makeSelection = false, moveSelection=false, mbdown=false;
+        Rectangle re;
+
+        //gets called everytime we invalidate the image, meaing the whole image has to be redrawn completely
+        //may be inefficient with large images, but w/e
+        private void pictureBox_Paint(object sender, PaintEventArgs e)
+        {
+            ControlPaint.DrawBorder(e.Graphics, re, Color.Black, ButtonBorderStyle.Dashed);
+        }
+
+        //called when we click the mouse down
+        private void pictureBox_MouseDown(object sender, MouseEventArgs e)
+        {
+            start.X = e.X;
+            start.Y = e.Y;
+            mbdown = true;
+
+            //have to tell whether we are creating a new selection area or moving it
+            if (re.Contains(start))
+                moveSelection = true;
+            else
+            {
+                makeSelection = true;
+                mainForm.ActiveForm.Cursor = Cursors.Cross;
+            }
+        }
+
+        //called when the mouse is moved
+        private void pictureBox_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (!mbdown) //give the user a premature indicator that the selection can be moved
+            {
+                if (re.Contains(e.X, e.Y))
+                    mainForm.ActiveForm.Cursor = Cursors.SizeAll;
+                else
+                    mainForm.ActiveForm.Cursor = Cursors.Default;
+            }
+            else //the mouse button is pressed down, so let's do something
+            {
+                if (makeSelection)
+                {
+                    re.X = Math.Min(start.X, e.X);
+                    re.Y = Math.Min(start.Y, e.Y);
+                    re.Width = Math.Max(start.X, e.Y) - re.X;
+                    re.Height = Math.Max(start.Y, e.Y) - re.Y;
+                }
+                else
+                {
+                    re.X += e.X - start.X;
+                    re.Y += e.Y - start.Y;
+                    start.X = e.X;
+                    start.Y = e.Y;  
+                }
+
+                pictureBox.Invalidate();
+            }
+        }
+
+        //called when we let go of the left mouse button
+        private void pictureBox_MouseUp(object sender, MouseEventArgs e)
+        {
+            makeSelection = false;
+            moveSelection = false;
+            mbdown = false;
+            mainForm.ActiveForm.Cursor = Cursors.Default;
+        }
+        ////////////////////////////////////////
+        //CROPPING AND RECTANGLE SELECTION FINISH
+        ////////////////////////////////////////
     }
 }

@@ -130,6 +130,7 @@
             this.Controls.Add(this.rotateBar);
             this.Controls.Add(this.cancelBut);
             this.Controls.Add(this.okayBut);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "freeRotateForm";
             this.Text = "Free Rotate";
             ((System.ComponentModel.ISupportInitialize)(this.rotateBar)).EndInit();
