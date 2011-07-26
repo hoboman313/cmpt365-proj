@@ -29,6 +29,8 @@ namespace proj
 
         private void okayBut_Click(object sender, EventArgs e)
         {
+            width = widthNumeric.Value;
+            height = heightNumeric.Value;
             Bitmap b = new Bitmap(img, Convert.ToInt32(width), Convert.ToInt32(height));
             img = b;
             this.Close();
@@ -39,7 +41,6 @@ namespace proj
             this.Close();
         }
 
-        //work in progress
         private void widthNumeric_ValueChanged(object sender, EventArgs e)
         {
             if (ratioCheckBox.Checked && !ignoreValueChanged)
@@ -54,7 +55,6 @@ namespace proj
                 ignoreValueChanged = false;
         }
 
-        //work in progress
         private void heightNumeric_ValueChanged(object sender, EventArgs e)
         {
             if (ratioCheckBox.Checked && !ignoreValueChanged)

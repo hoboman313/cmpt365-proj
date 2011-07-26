@@ -42,7 +42,7 @@ namespace proj
         public mainForm()
         {
             InitializeComponent();
-
+            pictureBox.ContextMenuStrip = contextMenu;
         }
 
         //handle the opening of any new file
@@ -286,12 +286,16 @@ namespace proj
             pictureBox.Image = img;
         }
 
+
+
+
         ////////////////////////////////////////
         //CROPPING AND RECTANGLE SELECTION BEGIN
         ////////////////////////////////////////
         Point start;
-        bool makeSelection = false, moveSelection=false, mbdown=false;
-        Rectangle re;
+        bool makeSelection = false, moveSelection=false, scaleLeftSelection=false, scaleRightSelection=false, scaleTopSelection=false, scaleBotSelection=false, mbdown=false;
+        Rectangle re, scaleRight, scaleLeft, scaleTop, scaleBot;
+        const int scaleRectSize = 10;
 
         //gets called everytime we invalidate the image, meaing the whole image has to be redrawn completely
         //may be inefficient with large images, but w/e
@@ -308,56 +312,175 @@ namespace proj
             mbdown = true;
 
             //have to tell whether we are creating a new selection area or moving it
-            if (re.Contains(start))
+            if (scaleRight.Contains(start))
+                scaleRightSelection = true;
+            else if (scaleLeft.Contains(start))
+                scaleLeftSelection = true;
+            else if (scaleTop.Contains(start))
+                scaleTopSelection = true;
+            else if (scaleBot.Contains(start))
+                scaleBotSelection = true;
+            else if (re.Contains(start))
                 moveSelection = true;
             else
             {
                 makeSelection = true;
                 mainForm.ActiveForm.Cursor = Cursors.Cross;
+
+                //clear previous rectangle incase it's a simple click
+                re.Height = 0;
+                re.Width = 0;
+                pictureBox.Invalidate();
             }
         }
 
         //called when the mouse is moved
         private void pictureBox_MouseMove(object sender, MouseEventArgs e)
         {
-            if (!mbdown) //give the user a premature indicator that the selection can be moved
-            {
-                if (re.Contains(e.X, e.Y))
-                    mainForm.ActiveForm.Cursor = Cursors.SizeAll;
-                else
-                    mainForm.ActiveForm.Cursor = Cursors.Default;
-            }
-            else //the mouse button is pressed down, so let's do something
-            {
-                if (makeSelection)
-                {
-                    re.X = Math.Min(start.X, e.X);
-                    re.Y = Math.Min(start.Y, e.Y);
-                    re.Width = Math.Max(start.X, e.Y) - re.X;
-                    re.Height = Math.Max(start.Y, e.Y) - re.Y;
-                }
-                else
-                {
-                    re.X += e.X - start.X;
-                    re.Y += e.Y - start.Y;
-                    start.X = e.X;
-                    start.Y = e.Y;  
-                }
 
-                pictureBox.Invalidate();
+            if (mainForm.ActiveForm != null)
+            {
+                if (!mbdown) //give the user a premature indicator that the selection can be moved
+                {
+                    if (scaleRight.Contains(e.X, e.Y) || scaleLeft.Contains(e.X, e.Y))
+                    {
+                        mainForm.ActiveForm.Cursor = Cursors.SizeWE;
+                    }
+                    else if (scaleTop.Contains(e.X, e.Y) || scaleBot.Contains(e.X, e.Y))
+                    {
+                        mainForm.ActiveForm.Cursor = Cursors.SizeNS;
+                    }
+                    else if (re.Contains(e.X, e.Y))
+                        mainForm.ActiveForm.Cursor = Cursors.SizeAll;
+                    else
+                        mainForm.ActiveForm.Cursor = Cursors.Default;
+                }
+                else //the mouse button is pressed down, so lets do something
+                {
+                    if (scaleRightSelection)
+                    {
+                        re.Width += e.X - start.X;
+                        start.X = e.X;
+                        start.Y = e.Y;
+                    }
+                    else if (scaleLeftSelection)
+                    {
+                        re.X += e.X - start.X;
+                        if (re.X >= 0)
+                            re.Width += start.X - e.X;
+
+                        start.X = e.X;
+                        start.Y = e.Y;
+                    }
+                    else if (scaleTopSelection)
+                    {
+                        re.Y += e.Y - start.Y;
+                        if (re.Y >= 1)
+                            re.Height += start.Y - e.Y;
+
+                        start.X = e.X;
+                        start.Y = e.Y;
+                    }
+                    else if (scaleBotSelection)
+                    {
+                        re.Height += e.Y - start.Y;
+                        start.X = e.X;
+                        start.Y = e.Y;
+                    }
+                    else if (makeSelection)
+                    {
+                        re.X = Math.Min(start.X, e.X);
+                        re.Y = Math.Min(start.Y, e.Y);
+
+                        if (re.X >= 0 && re.Y >= 1)
+                        {
+                            re.Width = Math.Max(start.X, e.X) - re.X;
+                            re.Height = Math.Max(start.Y, e.Y) - re.Y;
+                        }
+                    }
+                    else if (moveSelection)
+                    {
+                        re.X += e.X - start.X;
+                        re.Y += e.Y - start.Y;
+                        start.X = e.X;
+                        start.Y = e.Y;
+                    }
+
+                    //make sure that the selection rectangle doesn't go out of bounds
+                    if (re.Right > img.Width)
+                        re.Width = img.Width - re.X;
+                    if (re.Bottom > img.Height)
+                        re.Height = img.Height - re.Y;
+                    if (re.X < 0)
+                        re.X = 0;
+                    //+1 to offset the padding on the top
+                    if (re.Y < 1)
+                        re.Y = 1;
+
+                    //invisible rectangles created, so that we can show up the scale top/bot/right/left cursors
+                    scaleRight.X = re.Right - scaleRectSize / 2;
+                    scaleRight.Y = re.Y;
+                    scaleRight.Height = re.Height;
+                    scaleRight.Width = scaleRectSize;
+
+                    scaleLeft.X = re.Left - scaleRectSize / 2;
+                    scaleLeft.Y = re.Y;
+                    scaleLeft.Height = re.Height;
+                    scaleLeft.Width = scaleRectSize;
+
+                    scaleTop.X = re.X;
+                    scaleTop.Y = re.Top - scaleRectSize / 2;
+                    scaleTop.Height = scaleRectSize;
+                    scaleTop.Width = re.Width;
+
+                    scaleBot.X = re.X;
+                    scaleBot.Y = re.Bottom - scaleRectSize / 2;
+                    scaleBot.Height = scaleRectSize;
+                    scaleBot.Width = re.Width;
+
+                    pictureBox.Invalidate();
+                }
             }
         }
 
         //called when we let go of the left mouse button
         private void pictureBox_MouseUp(object sender, MouseEventArgs e)
         {
+            scaleRightSelection = false;
+            scaleLeftSelection = false;
+            scaleTopSelection = false;
+            scaleBotSelection = false;
             makeSelection = false;
             moveSelection = false;
             mbdown = false;
-            mainForm.ActiveForm.Cursor = Cursors.Default;
+
+            if( mainForm.ActiveForm != null )
+                mainForm.ActiveForm.Cursor = Cursors.Default;
         }
+
+        //crop the area selected by the rectangle selection
+        private void cropToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (re.Height!=0 && re.Width!=0 )
+            {
+                img = img.Clone(re, img.PixelFormat);
+                pictureBox.Image = img;
+                re.Height = 0;
+                re.Width = 0;
+                pictureBox.Invalidate();
+            }
+        }
+
+        private void cropToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            cropToolStripMenuItem_Click(sender, e);
+        }
+
         ////////////////////////////////////////
         //CROPPING AND RECTANGLE SELECTION FINISH
         ////////////////////////////////////////
+
+
+
     }
 }
