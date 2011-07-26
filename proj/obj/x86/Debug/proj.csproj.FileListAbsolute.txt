@@ -1,0 +1,11 @@
+D:\Egor's Garbage\SFU\Semester 5\cmpt365-proj\proj\bin\Debug\proj.exe
+D:\Egor's Garbage\SFU\Semester 5\cmpt365-proj\proj\bin\Debug\proj.pdb
+D:\Egor's Garbage\SFU\Semester 5\cmpt365-proj\proj\obj\x86\Debug\ResolveAssemblyReference.cache
+D:\Egor's Garbage\SFU\Semester 5\cmpt365-proj\proj\obj\x86\Debug\proj.freeRotateForm.resources
+D:\Egor's Garbage\SFU\Semester 5\cmpt365-proj\proj\obj\x86\Debug\proj.mainForm.resources
+D:\Egor's Garbage\SFU\Semester 5\cmpt365-proj\proj\obj\x86\Debug\proj.Properties.Resources.resources
+D:\Egor's Garbage\SFU\Semester 5\cmpt365-proj\proj\obj\x86\Debug\proj.resizeForm.resources
+D:\Egor's Garbage\SFU\Semester 5\cmpt365-proj\proj\obj\x86\Debug\GenerateResource.read.1.tlog
+D:\Egor's Garbage\SFU\Semester 5\cmpt365-proj\proj\obj\x86\Debug\GenerateResource.write.1.tlog
+D:\Egor's Garbage\SFU\Semester 5\cmpt365-proj\proj\obj\x86\Debug\proj.exe
+D:\Egor's Garbage\SFU\Semester 5\cmpt365-proj\proj\obj\x86\Debug\proj.pdb
