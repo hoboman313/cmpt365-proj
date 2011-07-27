@@ -1,4 +1,6 @@
-﻿using System;
+﻿//Form reponsible for rotating an image at an angle of 0-360
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;

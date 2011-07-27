@@ -1,4 +1,6 @@
-﻿using System;
+﻿//Form responsible for the resizing of the given image
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -31,8 +33,8 @@ namespace proj
         {
             width = widthNumeric.Value;
             height = heightNumeric.Value;
-            Bitmap b = new Bitmap(img, Convert.ToInt32(width), Convert.ToInt32(height));
-            img = b;
+            img= new Bitmap(img, Convert.ToInt32(width), Convert.ToInt32(height));
+
             this.Close();
         }
 

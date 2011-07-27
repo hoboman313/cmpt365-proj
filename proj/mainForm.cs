@@ -1,4 +1,6 @@
-﻿using System;
+﻿//Main form that implements most of our image viewer functionality and links to other forms
+
+using System;
 using System.IO;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,13 +16,18 @@ namespace proj
 {
     public partial class mainForm : Form
     {
-        Bitmap img = null;
+        //variables
+        Bitmap img = null, origImg=null;
         String imgName = null;
         ArrayList imagesOnPath = new ArrayList();
-        int viewedImageNum;
+        int viewedImageNum, zoomLevel=0, zoomedHeight, zoomedWidth;
         string parentDirectory;
-        List<string> imageExtensions = new List<string> { ".JPG", ".JPEG", ".BMP", ".GIF", ".PNG" };
         pixel[][] rawBytes;
+
+        //constants
+        List<string> imageExtensions = new List<string> { ".JPG", ".JPEG", ".BMP", ".GIF", ".PNG" };
+        const double zoomRatio = 0.1;
+        const int widthPad = 40, heightPad = 86;
 
         //define a pixel[x, y]
         //currently not used
@@ -69,6 +76,7 @@ namespace proj
                     }
                 }
                 imageToolStripMenuItem.Enabled = true;
+                viewToolStripMenuItem.Enabled = true;
                 openImage(file.FileName);
             }
         }
@@ -112,10 +120,54 @@ namespace proj
             }
         }
 
+        private void nextFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            rightButton_Click(sender, e);
+        }
+
+        private void previousFileInDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            leftButton_Click(sender, e);
+        }
+
         //save the img bitmap file in its current state
+        //DOES NOT WORK AFTER CROPING A FILE...FUCK
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            img.Save(imgName);
+            zoomNormalizeImage();
+            Bitmap tmp = new Bitmap(img);
+            img.Dispose();
+            origImg.Dispose();
+            pictureBox.Image = null;
+            File.Delete(imgName);
+            ImageFormat format;
+
+            switch (Path.GetExtension(imgName).ToLower())
+            {
+                case ".jpg":
+                    format = ImageFormat.Jpeg;
+                    break;
+                case ".jpeg":
+                    format = ImageFormat.Jpeg;
+                    break;
+                case ".png":
+                    format = ImageFormat.Png;
+                    break;
+                case ".gif":
+                    format = ImageFormat.Gif;
+                    break;
+                case ".bmp":
+                    format = ImageFormat.Bmp;
+                    break;
+                default:
+                    format=ImageFormat.Jpeg;
+                    break;
+            }
+
+            tmp.Save(imgName, format);
+            img = new Bitmap(tmp);
+            origImg = new Bitmap(tmp);
+            pictureBox.Image = img;
         }
 
         //same as simply saving the file, but allow the user to provide the location to save to
@@ -123,9 +175,11 @@ namespace proj
         {
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.RestoreDirectory = true;
+            sfd.Filter = "Image File|*"+ Path.GetExtension(imgName);
 
             if (DialogResult.OK == sfd.ShowDialog())
             {
+                zoomNormalizeImage();
                 img.Save(sfd.FileName);
             }
         }
@@ -135,14 +189,17 @@ namespace proj
             saveToolStripMenuItem_Click(sender, e);
         }
 
+        //main function that is to be called when we want to open an image with a path "imagePath"
         private void openImage(string imagePath)
         {
             imgName = imagePath;
             img = new Bitmap(imagePath);
+            origImg = new Bitmap(imagePath);
             pictureBox.Image = img;
-
-            mainForm.ActiveForm.Width = img.Width + 40;
-            mainForm.ActiveForm.Height = img.Height + 86;
+            mainForm.ActiveForm.Width = img.Width + widthPad;
+            mainForm.ActiveForm.Height = img.Height + heightPad;
+            zoomLevel = 0;
+            mainForm.ActiveForm.Text = imgName + " - Image Viewer";
 
             toolStripTextBox.Text = (viewedImageNum + 1).ToString() + "/" + imagesOnPath.Count;
             //rawBytes = GetRawBytes(img);
@@ -236,6 +293,8 @@ namespace proj
             rotateForm.ShowDialog();
 
             img = rotateForm.img;
+            origImg = new Bitmap(rotateForm.img);
+
             pictureBox.Image = img;
         }
 
@@ -253,10 +312,12 @@ namespace proj
                 {
                     pictureBox.Image = null;
                     img.Dispose();
+                    origImg.Dispose();
                     imagesOnPath.Clear();
                     File.Delete(imgName);
                     toolStripTextBox.Text = "";
                     imageToolStripMenuItem.Enabled = false;
+                    viewToolStripMenuItem.Enabled = false;
                 }
             }
         }
@@ -283,10 +344,9 @@ namespace proj
             resizeform.ShowDialog();
 
             img = resizeform.img;
+            origImg = new Bitmap(resizeform.img);
             pictureBox.Image = img;
         }
-
-
 
 
         ////////////////////////////////////////
@@ -438,6 +498,7 @@ namespace proj
                     scaleBot.Height = scaleRectSize;
                     scaleBot.Width = re.Width;
 
+                    //redraw the entire picture box
                     pictureBox.Invalidate();
                 }
             }
@@ -464,6 +525,7 @@ namespace proj
             if (re.Height!=0 && re.Width!=0 )
             {
                 img = img.Clone(re, img.PixelFormat);
+                origImg = new Bitmap(img);
                 pictureBox.Image = img;
                 re.Height = 0;
                 re.Width = 0;
@@ -475,12 +537,135 @@ namespace proj
         {
             cropToolStripMenuItem_Click(sender, e);
         }
-
         ////////////////////////////////////////
         //CROPPING AND RECTANGLE SELECTION FINISH
         ////////////////////////////////////////
 
+        //zoom in on the image
+        private void zoomInButton_Click(object sender, EventArgs e)
+        {
+            if (imagesOnPath.Count != 0)
+            {
+                zoomLevel++;
+                zoomedHeight = origImg.Height;
+                zoomedWidth = origImg.Width;
+                doZoom();
+            }
+        }
+
+        //zoom out on the image
+        private void zoomOutButton_Click(object sender, EventArgs e)
+        {
+            if (imagesOnPath.Count != 0)
+            {
+                zoomLevel--;
+                zoomedHeight = origImg.Height;
+                zoomedWidth = origImg.Width;
+                doZoom();
+            }
+        }
 
 
+        //main function that implements the zooming logic
+        private void doZoom()
+        {
+            //The logic behind doing it like this is that the resolution of an 
+            //image changes when we make it smaller, thus the overall quality 
+            //would decrease if we do a lot of zoom ins and then a bunch of zoom outs.
+            //This way solves that problem and preserves the quality.
+            if (zoomLevel < 0)
+            {
+                for (int i = 0; i < Math.Abs(zoomLevel); i++)
+                {
+                    zoomedWidth = Convert.ToInt32(Convert.ToDouble(zoomedWidth) * (1.0-zoomRatio));
+                    zoomedHeight = Convert.ToInt32(Convert.ToDouble(zoomedHeight) * (1.0 - zoomRatio));
+                }
+
+                mainForm.ActiveForm.Text = imgName + " - Image Viewer (" + " Zoomed Out " + Math.Abs(zoomLevel) + "x: " + zoomedWidth + ", " + zoomedHeight + " )";
+            }
+            else if (zoomLevel > 0)
+            {
+                for (int i = 0; i < zoomLevel; i++)
+                {
+                    zoomedWidth = Convert.ToInt32(Convert.ToDouble(zoomedWidth) * (1.0 + zoomRatio));
+                    zoomedHeight = Convert.ToInt32(Convert.ToDouble(zoomedHeight) * (1.0 + zoomRatio));
+                }
+                mainForm.ActiveForm.Text = imgName + " - Image Viewer (" + " Zoomed In " + zoomLevel + "x: " + zoomedWidth + ", " + zoomedHeight + " )";
+            }
+            else //zoomLevel == 0
+            {
+                mainForm.ActiveForm.Text = imgName + " - Image Viewer";
+            }
+
+            img = new Bitmap(origImg, zoomedWidth, zoomedHeight);
+            pictureBox.Image = img;
+
+            mainForm.ActiveForm.Width = img.Width + widthPad;
+            mainForm.ActiveForm.Height = img.Height + heightPad;
+        }
+
+        //return image to its "original size". Not zoomed in and not zoomed out.
+        private void zoomNormalizeImage()
+        {
+            if (zoomLevel != 0)
+            {
+                int width = img.Width, height = img.Height;
+                //we have a zoomed in image and we gotta make it small again
+                if (zoomLevel > 0)
+                {
+                    for (int i = zoomLevel; i != 0; i--)
+                    {
+                        width = Convert.ToInt32(Convert.ToDouble(width) * (1.0 - zoomRatio));
+                        height = Convert.ToInt32(Convert.ToDouble(height) * (1.0 - zoomRatio));
+                    }
+                }
+                else if (zoomLevel < 0)
+                {
+                    for (int i = zoomLevel; i != 0; i++)
+                    {
+                        width = Convert.ToInt32(Convert.ToDouble(width) * (1.0 + zoomRatio));
+                        height = Convert.ToInt32(Convert.ToDouble(height) * (1.0 + zoomRatio));
+                    }
+                }
+
+                img = new Bitmap(img, width, height);
+                origImg = new Bitmap(img);
+                pictureBox.Image = img;
+                mainForm.ActiveForm.Text = imgName + " - Image Viewer";
+                mainForm.ActiveForm.Width = img.Width + widthPad;
+                mainForm.ActiveForm.Height = img.Height + heightPad;
+                zoomLevel = 0;
+            }
+        }
+
+        private void zoomInToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            zoomInButton_Click(sender, e);
+        }
+
+        private void zoomOutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            zoomOutButton_Click(sender, e);
+        }
+
+        //reopen the currently viewed image
+        private void reopenToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            openImage(imagesOnPath[viewedImageNum].ToString());
+        }
+
+        //view the first file in the directory
+        private void firstFileInDToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            viewedImageNum = 0;
+            openImage(imagesOnPath[viewedImageNum].ToString());
+        }
+
+        //view the last file in the directory
+        private void lastFileInDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            viewedImageNum = imagesOnPath.Count-1;
+            openImage(imagesOnPath[viewedImageNum].ToString());
+        }
     }
 }
