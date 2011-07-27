@@ -138,7 +138,6 @@ namespace proj
             Bitmap tmp = new Bitmap(img);
             img.Dispose();
             origImg.Dispose();
-            pictureBox.Image = null;
             File.Delete(imgName);
             ImageFormat format;
 
@@ -390,6 +389,15 @@ namespace proj
                 //clear previous rectangle incase it's a simple click
                 re.Height = 0;
                 re.Width = 0;
+                scaleRight.Height = 0;
+                scaleRight.Width = 0;
+                scaleLeft.Height = 0;
+                scaleLeft.Width = 0;
+                scaleTop.Height = 0;
+                scaleTop.Width = 0;
+                scaleBot.Height = 0;
+                scaleBot.Width = 0;
+
                 pictureBox.Invalidate();
             }
         }
