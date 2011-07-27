@@ -72,7 +72,7 @@ namespace proj
                 {
                     if (imageExtensions.Contains(Path.GetExtension(files[i].ToString().ToUpper())) && file.FileName != parentDirectory + files[i].ToString())
                     {
-                        imagesOnPath.Add(parentDirectory+files[i].ToString());
+                        imagesOnPath.Add(parentDirectory+"\\"+files[i].ToString());
                     }
                 }
                 imageToolStripMenuItem.Enabled = true;
