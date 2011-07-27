@@ -555,8 +555,13 @@ namespace proj
             if (imagesOnPath.Count != 0)
             {
                 zoomLevel++;
-                zoomedHeight = origImg.Height;
-                zoomedWidth = origImg.Width;
+
+                //make the rectangular selection zoom too
+                re.X = Convert.ToInt32(re.X * (1.0 + zoomRatio));
+                re.Y = Convert.ToInt32(re.Y * (1.0 + zoomRatio));
+                re.Height = Convert.ToInt32(re.Height * (1.0 + zoomRatio));
+                re.Width = Convert.ToInt32(re.Width * (1.0 + zoomRatio));
+
                 doZoom();
             }
         }
@@ -567,8 +572,13 @@ namespace proj
             if (imagesOnPath.Count != 0)
             {
                 zoomLevel--;
-                zoomedHeight = origImg.Height;
-                zoomedWidth = origImg.Width;
+
+                //make the rectangular selection zoom too
+                re.X = Convert.ToInt32(re.X*(1.0 - zoomRatio));
+                re.Y = Convert.ToInt32(re.Y * (1.0 - zoomRatio));
+                re.Height = Convert.ToInt32(re.Height * (1.0 - zoomRatio));
+                re.Width = Convert.ToInt32(re.Width * (1.0 - zoomRatio));
+
                 doZoom();
             }
         }
@@ -581,6 +591,10 @@ namespace proj
             //image changes when we make it smaller, thus the overall quality 
             //would decrease if we do a lot of zoom ins and then a bunch of zoom outs.
             //This way solves that problem and preserves the quality.
+
+            zoomedHeight = origImg.Height;
+            zoomedWidth = origImg.Width;
+
             if (zoomLevel < 0)
             {
                 for (int i = 0; i < Math.Abs(zoomLevel); i++)
