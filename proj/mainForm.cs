@@ -28,6 +28,7 @@ namespace proj
         List<string> imageExtensions = new List<string> { ".JPG", ".JPEG", ".BMP", ".GIF", ".PNG" };
         const double zoomRatio = 0.1;
         const int widthPad = 40, heightPad = 86;
+        const string progName="Image Viewer";
 
         //define a pixel[x, y]
         //currently not used
@@ -131,7 +132,6 @@ namespace proj
         }
 
         //save the img bitmap file in its current state
-        //DOES NOT WORK AFTER CROPING A FILE...FUCK
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             zoomNormalizeImage();
@@ -179,7 +179,31 @@ namespace proj
             if (DialogResult.OK == sfd.ShowDialog())
             {
                 zoomNormalizeImage();
-                img.Save(sfd.FileName);
+                ImageFormat format;
+
+                switch (Path.GetExtension(sfd.FileName).ToLower())
+                {
+                    case ".jpg":
+                        format = ImageFormat.Jpeg;
+                        break;
+                    case ".jpeg":
+                        format = ImageFormat.Jpeg;
+                        break;
+                    case ".png":
+                        format = ImageFormat.Png;
+                        break;
+                    case ".gif":
+                        format = ImageFormat.Gif;
+                        break;
+                    case ".bmp":
+                        format = ImageFormat.Bmp;
+                        break;
+                    default:
+                        format = ImageFormat.Jpeg;
+                        break;
+                }
+
+                img.Save(sfd.FileName, format);
             }
         }
 
@@ -198,7 +222,7 @@ namespace proj
             mainForm.ActiveForm.Width = img.Width + widthPad;
             mainForm.ActiveForm.Height = img.Height + heightPad;
             zoomLevel = 0;
-            mainForm.ActiveForm.Text = imgName + " - Image Viewer";
+            mainForm.ActiveForm.Text = imgName + " - "+progName;
 
             toolStripTextBox.Text = (viewedImageNum + 1).ToString() + "/" + imagesOnPath.Count;
             //rawBytes = GetRawBytes(img);
@@ -315,6 +339,7 @@ namespace proj
                     imagesOnPath.Clear();
                     File.Delete(imgName);
                     toolStripTextBox.Text = "";
+                    mainForm.ActiveForm.Text = progName;
                     imageToolStripMenuItem.Enabled = false;
                     viewToolStripMenuItem.Enabled = false;
                 }
@@ -343,6 +368,7 @@ namespace proj
             resizeform.ShowDialog();
 
             img = resizeform.img;
+            origImg.Dispose();
             origImg = new Bitmap(resizeform.img);
             pictureBox.Image = img;
         }
@@ -357,7 +383,7 @@ namespace proj
         const int scaleRectSize = 10;
 
         //gets called everytime we invalidate the image, meaing the whole image has to be redrawn completely
-        //may be inefficient with large images, but w/e
+        //may be inefficient with large images
         private void pictureBox_Paint(object sender, PaintEventArgs e)
         {
             ControlPaint.DrawBorder(e.Graphics, re, Color.Black, ButtonBorderStyle.Dashed);
@@ -533,6 +559,7 @@ namespace proj
             if (re.Height!=0 && re.Width!=0 )
             {
                 img = img.Clone(re, img.PixelFormat);
+                origImg.Dispose();
                 origImg = new Bitmap(img);
                 pictureBox.Image = img;
                 re.Height = 0;
@@ -603,7 +630,7 @@ namespace proj
                     zoomedHeight = Convert.ToInt32(Convert.ToDouble(zoomedHeight) * (1.0 - zoomRatio));
                 }
 
-                mainForm.ActiveForm.Text = imgName + " - Image Viewer (" + " Zoomed Out " + Math.Abs(zoomLevel) + "x: " + zoomedWidth + ", " + zoomedHeight + " )";
+                mainForm.ActiveForm.Text = imgName + " - " + progName + " (" + " Zoomed Out " + Math.Abs(zoomLevel) + "x: " + zoomedWidth + ", " + zoomedHeight + " )";
             }
             else if (zoomLevel > 0)
             {
@@ -612,13 +639,13 @@ namespace proj
                     zoomedWidth = Convert.ToInt32(Convert.ToDouble(zoomedWidth) * (1.0 + zoomRatio));
                     zoomedHeight = Convert.ToInt32(Convert.ToDouble(zoomedHeight) * (1.0 + zoomRatio));
                 }
-                mainForm.ActiveForm.Text = imgName + " - Image Viewer (" + " Zoomed In " + zoomLevel + "x: " + zoomedWidth + ", " + zoomedHeight + " )";
+                mainForm.ActiveForm.Text = imgName + " - " + progName + " (" + " Zoomed In " + zoomLevel + "x: " + zoomedWidth + ", " + zoomedHeight + " )";
             }
             else //zoomLevel == 0
             {
-                mainForm.ActiveForm.Text = imgName + " - Image Viewer";
+                mainForm.ActiveForm.Text = imgName + " - " + progName;
             }
-
+            img.Dispose();
             img = new Bitmap(origImg, zoomedWidth, zoomedHeight);
             pictureBox.Image = img;
 
@@ -651,9 +678,10 @@ namespace proj
                 }
 
                 img = new Bitmap(img, width, height);
+                origImg.Dispose();
                 origImg = new Bitmap(img);
                 pictureBox.Image = img;
-                mainForm.ActiveForm.Text = imgName + " - Image Viewer";
+                mainForm.ActiveForm.Text = imgName + " - " + progName;
                 mainForm.ActiveForm.Width = img.Width + widthPad;
                 mainForm.ActiveForm.Height = img.Height + heightPad;
                 zoomLevel = 0;

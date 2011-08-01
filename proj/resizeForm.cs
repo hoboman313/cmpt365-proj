@@ -27,6 +27,9 @@ namespace proj
             widthNumeric.Value = img.Width;
             heightNumeric.Value = img.Height;
             ignoreValueChanged = false;
+            heightNumeric.Minimum = 1;
+            widthNumeric.Minimum = 1;
+
         }
 
         private void okayBut_Click(object sender, EventArgs e)
@@ -49,9 +52,12 @@ namespace proj
             {
                 ignoreValueChanged = true;
                 decimal ratio = width / Convert.ToDecimal(widthNumeric.Value);
-                heightNumeric.Value = Math.Round(heightNumeric.Value / ratio);
-                height = Convert.ToDecimal(heightNumeric.Value);
-                width = Convert.ToDecimal(widthNumeric.Value);
+                if (Math.Round(heightNumeric.Value / ratio) > heightNumeric.Minimum)
+                {
+                    heightNumeric.Value = Math.Round(heightNumeric.Value / ratio);
+                    height = Convert.ToDecimal(heightNumeric.Value);
+                    width = Convert.ToDecimal(widthNumeric.Value);
+                }
             }
             else
                 ignoreValueChanged = false;
@@ -63,10 +69,13 @@ namespace proj
             {
                 ignoreValueChanged = true;
                 decimal ratio = height / Convert.ToDecimal(heightNumeric.Value);
-                widthNumeric.Value = Math.Round(widthNumeric.Value / ratio);
-                
-                height = Convert.ToDecimal(heightNumeric.Value);
-                width = Convert.ToDecimal(widthNumeric.Value);
+
+                if (Math.Round(widthNumeric.Value / ratio) > widthNumeric.Minimum)
+                {
+                    widthNumeric.Value = Math.Round(widthNumeric.Value / ratio);
+                    height = Convert.ToDecimal(heightNumeric.Value);
+                    width = Convert.ToDecimal(widthNumeric.Value);
+                }
             }
             else
                 ignoreValueChanged = false;
