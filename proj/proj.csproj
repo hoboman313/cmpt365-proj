@@ -46,6 +46,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="adjustColorsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="adjustColorsForm.Designer.cs">
+      <DependentUpon>adjustColorsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="bitmapHelper.cs" />
     <Compile Include="freeRotateForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -66,6 +73,9 @@
     <Compile Include="resizeForm.Designer.cs">
       <DependentUpon>resizeForm.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="adjustColorsForm.resx">
+      <DependentUpon>adjustColorsForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="freeRotateForm.resx">
       <DependentUpon>freeRotateForm.cs</DependentUpon>
     </EmbeddedResource>

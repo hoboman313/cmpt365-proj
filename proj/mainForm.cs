@@ -22,30 +22,12 @@ namespace proj
         ArrayList imagesOnPath = new ArrayList();
         int viewedImageNum, zoomLevel=0, zoomedHeight, zoomedWidth;
         string parentDirectory;
-        pixel[][] rawBytes;
 
         //constants
         List<string> imageExtensions = new List<string> { ".JPG", ".JPEG", ".BMP", ".GIF", ".PNG" };
         const double zoomRatio = 0.1;
         const int widthPad = 40, heightPad = 86;
         const string progName="Image Viewer";
-
-        //define a pixel[x, y]
-        //currently not used
-        public struct pixel
-        {
-            public double r, g, b, y, u, v;
-
-            public pixel(double r, double g, double b, double y, double u, double v)
-            {
-                this.r = r;
-                this.g = g;
-                this.b = b;
-                this.y = y;
-                this.u = u;
-                this.v = v;
-            }
-        }
 
         public mainForm()
         {
@@ -59,7 +41,7 @@ namespace proj
             OpenFileDialog file = new OpenFileDialog();
             //should match imageExtensions
             file.Filter = "Image Files|*.jpeg;*.jpg;*.png;*.gif;*.bmp|All Files|*.*";
-            file.Title = "Select a JPEG file";
+            file.Title = "Select an Image File";
 
             if (DialogResult.OK == file.ShowDialog())
             {
@@ -174,7 +156,7 @@ namespace proj
         {
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.RestoreDirectory = true;
-            sfd.Filter = "Image File|*"+ Path.GetExtension(imgName);
+            sfd.Filter = "Image Files|*.jpeg;*.jpg;*.png;*.gif;*.bmp|All Files|*.*";
 
             if (DialogResult.OK == sfd.ShowDialog())
             {
@@ -225,60 +207,6 @@ namespace proj
             mainForm.ActiveForm.Text = imgName + " - "+progName;
 
             toolStripTextBox.Text = (viewedImageNum + 1).ToString() + "/" + imagesOnPath.Count;
-            //rawBytes = GetRawBytes(img);
-        }
-
-
-        //get the raw bytes of an image and store them into the rawBytes array
-        //rawByte is a pixel struct, which holds the value of r, g, b, y, u, v values at each x,y of an image
-        //WARNING: we probably cannot use this because we have to support all image types and this only seems to work with jpg
-        private pixel[][] GetRawBytes(Bitmap bmp)
-        {
-            //only works with 24 bits per pixel image types
-            if (bmp.PixelFormat != PixelFormat.Format24bppRgb)
-                throw new InvalidOperationException("Image format not supported.");
-
-            pixel[][] rawBytes = new pixel[bmp.Width][];
-            for (int i = 0; i < rawBytes.Length; i++)
-                rawBytes[i] = new pixel[bmp.Height];
-
-            Rectangle rect = new Rectangle(0, 0, bmp.Width, bmp.Height);
-
-            System.Drawing.Imaging.BitmapData bmpData =
-                bmp.LockBits(rect,
-                    System.Drawing.Imaging.ImageLockMode.ReadOnly,
-                    bmp.PixelFormat);
-
-            IntPtr ptr = bmpData.Scan0;
-
-            int bytes = bmpData.Stride * bmp.Height;
-            byte[] rgbValues = new byte[bytes];
-
-            System.Runtime.InteropServices.Marshal.Copy(ptr,
-                           rgbValues, 0, bytes);
-
-            byte red = 0;
-            byte green = 0;
-            byte blue = 0;
-
-            //traverse through image
-            for (int x = 0; x < bmp.Width; x++)
-            {
-                for (int y = 0; y < bmp.Height; y++)
-                {
-                    int position = (y * bmpData.Stride) + (x * 3);
-                    blue = rgbValues[position];
-                    green = rgbValues[position + 1];
-                    red = rgbValues[position + 2];
-
-                    //actual convert of rgb to yuv here
-                    rawBytes[x][y] = new pixel(red, green, blue, red * 0.299000 + green * 0.587000 + blue * 0.114000, red * -0.168736 + green * -0.331264 + blue * 0.500000 + 128, red * 0.500000 + green * -.418688 + blue * -0.081312 + 128);
-                }
-            }
-
-            bmp.UnlockBits(bmpData);
-
-            return rawBytes;
         }
 
         //rotate image to the left
@@ -716,6 +644,64 @@ namespace proj
         {
             viewedImageNum = imagesOnPath.Count-1;
             openImage(imagesOnPath[viewedImageNum].ToString());
+        }
+
+        //make the image negative ( 255- R/G/B for each pixel )
+        private void negativeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            CTImage ctImage = new CTImage(ref img);
+            Pixel pixel;
+
+            for (int i = 0; i < ctImage.getHeight(); i++)
+            {
+                for (int j = 0; j < ctImage.getWidth(); j++)
+                {
+                    pixel = ctImage.getPixel(i, j);
+                    pixel.Red = 255 - pixel.Red;
+                    pixel.Green = 255 - pixel.Green;
+                    pixel.Blue = 255 - pixel.Blue;
+                    ctImage.setPixel(i, j, pixel);
+                }
+            }
+
+            img = ctImage.getBitmap();
+            origImg.Dispose();
+            origImg = new Bitmap(img);
+            pictureBox.Image = img; 
+        }
+
+        //convert the image to grayscale
+        private void convertToGrayscaleToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            CTImage ctImage = new CTImage(ref img);
+            Pixel pixel, tmp=new Pixel(0, 0, 0 );
+
+            for (int i = 0; i < ctImage.getHeight(); i++)
+            {
+                for (int j = 0; j < ctImage.getWidth(); j++)
+                {
+                    pixel = ctImage.getPixel(i, j);
+                    tmp.Blue=tmp.Green = tmp.Red = Convert.ToInt32(pixel.Red * 0.299 + pixel.Green * 0.587 + pixel.Blue * 0.114);
+
+                    ctImage.setPixel(i, j, tmp);
+                }
+            }
+
+            img = ctImage.getBitmap();
+            origImg.Dispose();
+            origImg = new Bitmap(img);
+            pictureBox.Image = img; 
+        }
+
+        private void adjustColorsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            adjustColorsForm adjustColorsForm = new adjustColorsForm(img);
+            adjustColorsForm.ShowDialog();
+
+            img = adjustColorsForm.img;
+            origImg = new Bitmap(adjustColorsForm.img);
+
+            pictureBox.Image = img;
         }
     }
 }

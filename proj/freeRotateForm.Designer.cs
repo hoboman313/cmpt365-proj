@@ -35,6 +35,8 @@
             this.rotateNumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.origPictureBox = new System.Windows.Forms.PictureBox();
             this.newPictureBox = new System.Windows.Forms.PictureBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.rotateBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.rotateNumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.origPictureBox)).BeginInit();
@@ -43,7 +45,7 @@
             // 
             // okayBut
             // 
-            this.okayBut.Location = new System.Drawing.Point(30, 229);
+            this.okayBut.Location = new System.Drawing.Point(30, 258);
             this.okayBut.Name = "okayBut";
             this.okayBut.Size = new System.Drawing.Size(94, 34);
             this.okayBut.TabIndex = 0;
@@ -53,7 +55,7 @@
             // 
             // cancelBut
             // 
-            this.cancelBut.Location = new System.Drawing.Point(181, 228);
+            this.cancelBut.Location = new System.Drawing.Point(181, 257);
             this.cancelBut.Name = "cancelBut";
             this.cancelBut.Size = new System.Drawing.Size(94, 34);
             this.cancelBut.TabIndex = 1;
@@ -63,19 +65,18 @@
             // 
             // rotateBar
             // 
-            this.rotateBar.Location = new System.Drawing.Point(14, 170);
+            this.rotateBar.Location = new System.Drawing.Point(14, 199);
             this.rotateBar.Maximum = 360;
             this.rotateBar.Name = "rotateBar";
             this.rotateBar.Size = new System.Drawing.Size(286, 45);
             this.rotateBar.TabIndex = 2;
-            this.rotateBar.Value = 45;
             this.rotateBar.Scroll += new System.EventHandler(this.rotateBar_Scroll);
             // 
             // rotateLab
             // 
             this.rotateLab.AutoSize = true;
             this.rotateLab.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.rotateLab.Location = new System.Drawing.Point(20, 135);
+            this.rotateLab.Location = new System.Drawing.Point(20, 164);
             this.rotateLab.Name = "rotateLab";
             this.rotateLab.Size = new System.Drawing.Size(109, 20);
             this.rotateLab.TabIndex = 3;
@@ -83,7 +84,7 @@
             // 
             // rotateNumericUpDown
             // 
-            this.rotateNumericUpDown.Location = new System.Drawing.Point(142, 136);
+            this.rotateNumericUpDown.Location = new System.Drawing.Point(142, 165);
             this.rotateNumericUpDown.Maximum = new decimal(new int[] {
             360,
             0,
@@ -92,16 +93,11 @@
             this.rotateNumericUpDown.Name = "rotateNumericUpDown";
             this.rotateNumericUpDown.Size = new System.Drawing.Size(120, 20);
             this.rotateNumericUpDown.TabIndex = 5;
-            this.rotateNumericUpDown.Value = new decimal(new int[] {
-            45,
-            0,
-            0,
-            0});
             this.rotateNumericUpDown.ValueChanged += new System.EventHandler(this.rotateNumericUpDown_ValueChanged);
             // 
             // origPictureBox
             // 
-            this.origPictureBox.Location = new System.Drawing.Point(0, 0);
+            this.origPictureBox.Location = new System.Drawing.Point(0, 29);
             this.origPictureBox.Name = "origPictureBox";
             this.origPictureBox.Size = new System.Drawing.Size(146, 132);
             this.origPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -110,19 +106,39 @@
             // 
             // newPictureBox
             // 
-            this.newPictureBox.Location = new System.Drawing.Point(175, 0);
+            this.newPictureBox.Location = new System.Drawing.Point(175, 29);
             this.newPictureBox.Name = "newPictureBox";
             this.newPictureBox.Size = new System.Drawing.Size(140, 135);
             this.newPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.newPictureBox.TabIndex = 7;
             this.newPictureBox.TabStop = false;
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(41, 9);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(55, 13);
+            this.label1.TabIndex = 8;
+            this.label1.Text = "Old Image";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(212, 9);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(61, 13);
+            this.label2.TabIndex = 9;
+            this.label2.Text = "New Image";
+            // 
             // freeRotateForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(314, 285);
+            this.ClientSize = new System.Drawing.Size(314, 300);
             this.ControlBox = false;
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.newPictureBox);
             this.Controls.Add(this.origPictureBox);
             this.Controls.Add(this.rotateNumericUpDown);
@@ -151,5 +167,7 @@
         private System.Windows.Forms.NumericUpDown rotateNumericUpDown;
         private System.Windows.Forms.PictureBox origPictureBox;
         private System.Windows.Forms.PictureBox newPictureBox;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
     }
 }

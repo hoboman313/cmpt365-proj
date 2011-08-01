@@ -20,6 +20,7 @@ namespace proj
             InitializeComponent();
             img=bmp;
             origPictureBox.Image = img;
+            newPictureBox.Image = img;
         }
 
         //code to rotate from: http://www.switchonthecode.com/tutorials/csharp-tutorial-image-editing-rotate
