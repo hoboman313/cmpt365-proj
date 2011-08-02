@@ -484,6 +484,7 @@ namespace proj
         //crop the area selected by the rectangle selection
         private void cropToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            //first make sure that the user selected a rectangle
             if (re.Height!=0 && re.Width!=0 )
             {
                 img = img.Clone(re, img.PixelFormat);
@@ -494,6 +495,8 @@ namespace proj
                 re.Width = 0;
                 pictureBox.Invalidate();
             }
+            else
+                MessageBox.Show("You must first make a selection to use this feature.", "Warning");
         }
 
         private void cropToolStripMenuItem1_Click(object sender, EventArgs e)
@@ -693,6 +696,7 @@ namespace proj
             pictureBox.Image = img; 
         }
 
+        //pop up the form to adjust image colors
         private void adjustColorsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             adjustColorsForm adjustColorsForm = new adjustColorsForm(img);
@@ -702,6 +706,49 @@ namespace proj
             origImg = new Bitmap(adjustColorsForm.img);
 
             pictureBox.Image = img;
+        }
+
+        //try to remove the red eyes from a selection of a picture
+        //code logic from: http://stackoverflow.com/questions/133675/red-eye-reduction-algorithm
+        private void redEyeReductionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            CTImage ctImage = new CTImage(ref img);
+            Pixel pixel;
+            float redIntensity;
+
+            //first make sure that the user selected a rectangle
+            if (re.Height != 0 && re.Width != 0)
+            {
+                for (int i = re.Y; i < re.Bottom; i++)
+                {
+                    for (int j = re.X; j < re.Right; j++)
+                    {
+                        pixel = ctImage.getPixel(i, j);
+
+                        //Value of red divided by average of blue and green:
+                        redIntensity = ((float)pixel.Red / ((pixel.Green + pixel.Blue) / 2));
+
+                        if (redIntensity > 1.5f)  // 1.5 because it gives the best results
+                        {
+                            // reduce red to the average of blue and green
+                            ctImage.setPixel(i, j, new Pixel((pixel.Green + pixel.Blue) / 2, pixel.Green, pixel.Blue));
+                        }
+                    }
+                }
+
+                img = ctImage.getBitmap();
+                origImg.Dispose();
+                origImg = new Bitmap(img);
+                pictureBox.Image = img; 
+
+            }
+            else
+                MessageBox.Show("You must first make a selection to use this feature.", "Warning");
+        }
+
+        private void redEyeReductionToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            redEyeReductionToolStripMenuItem_Click(sender, e);
         }
     }
 }

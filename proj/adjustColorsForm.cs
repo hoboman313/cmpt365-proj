@@ -24,6 +24,10 @@ namespace proj
             newPictureBox.Image = adjustedImg;
             origCImage = new CTImage(ref img);
             ctImage = new CTImage(ref adjustedImg);
+
+            //default gamma is 1.00
+            for (int i = 0; i < 256; i++)
+                gammaTable[i] = Math.Min(255, (int)((255.0 * Math.Pow(i / 255.0, 1.0 / 1.00)) + 0.5));
         }
 
         private void okayBut_Click(object sender, EventArgs e)
@@ -182,6 +186,18 @@ namespace proj
                         pixel.Blue = 255;
                     else if (pixel.Blue < 0)
                         pixel.Blue = 0;
+
+                    double h, s, l;
+                    CTImage.RGB2HSL(pixel, out h, out s, out l);
+
+                    s = s + Convert.ToDouble(saturationUd.Value) / 255.0;
+
+                    if (s > 1)
+                        s = 1;
+                    else if (s < 0)
+                        s = 0;
+
+                    pixel = CTImage.HSL2RGB(h, s, l);
 
                     ctImage.setPixel(i, j, pixel);
                 }
