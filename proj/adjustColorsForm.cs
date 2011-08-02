@@ -12,7 +12,8 @@ namespace proj
     public partial class adjustColorsForm : Form
     {
         public Bitmap img, adjustedImg;
-        CTImage origCtImage, adjustedCtImage;
+        CTImage ctImage, origCImage;
+        int[] gammaTable = new int[256];
 
         public adjustColorsForm(Bitmap bmp)
         {
@@ -21,8 +22,8 @@ namespace proj
             adjustedImg = img;
             origPictureBox.Image = img;
             newPictureBox.Image = adjustedImg;
-            origCtImage = new CTImage(ref img);
-            adjustedCtImage = new CTImage(ref adjustedImg);
+            origCImage = new CTImage(ref img);
+            ctImage = new CTImage(ref adjustedImg);
         }
 
         private void okayBut_Click(object sender, EventArgs e)
@@ -85,131 +86,127 @@ namespace proj
         {
             brightnessBar.Value = Convert.ToInt32(brightnessUd.Value);
 
-            Pixel pixel;
-
-            for (int i = 0; i < origCtImage.getHeight(); i++)
-            {
-                for (int j = 0; j < origCtImage.getWidth(); j++)
-                {
-                    pixel = origCtImage.getPixel(i, j);
-                    pixel.Red += Convert.ToInt32(brightnessUd.Value);
-                    pixel.Green += Convert.ToInt32(brightnessUd.Value);
-                    pixel.Blue += Convert.ToInt32(brightnessUd.Value);
-
-                    if (pixel.Red > 255)
-                        pixel.Red = 255;
-                    else if (pixel.Red < 0)
-                        pixel.Red = 0;
-
-                    if (pixel.Green > 255)
-                        pixel.Green = 255;
-                    else if (pixel.Green < 0)
-                        pixel.Green = 0;
-
-                    if (pixel.Blue > 255)
-                        pixel.Blue = 255;
-                    else if (pixel.Blue < 0)
-                        pixel.Blue = 0;
-
-                    adjustedCtImage.setPixel(i, j, pixel);
-                }
-            }
-
-            adjustedImg = adjustedCtImage.getBitmap();
-            newPictureBox.Image= adjustedImg;
+            adjustColors();
         }
 
         private void rUd_ValueChanged(object sender, EventArgs e)
         {
             rBar.Value = Convert.ToInt32(rUd.Value);
 
-            Pixel pixel;
-
-            for (int i = 0; i < origCtImage.getHeight(); i++)
-            {
-                for (int j = 0; j < origCtImage.getWidth(); j++)
-                {
-                    pixel = origCtImage.getPixel(i, j);
-                    pixel.Red += Convert.ToInt32(rUd.Value);
-
-                    if (pixel.Red > 255)
-                        pixel.Red = 255;
-                    else if (pixel.Red < 0)
-                        pixel.Red = 0;
-
-                    adjustedCtImage.setPixel(i, j, pixel);
-                }
-            }
-
-            adjustedImg = adjustedCtImage.getBitmap();
-            newPictureBox.Image= adjustedImg;
+            adjustColors();
         }
 
         private void gUd_ValueChanged(object sender, EventArgs e)
         {
             gBar.Value = Convert.ToInt32(gUd.Value);
 
-            Pixel pixel;
-
-            for (int i = 0; i < origCtImage.getHeight(); i++)
-            {
-                for (int j = 0; j < origCtImage.getWidth(); j++)
-                {
-                    pixel = origCtImage.getPixel(i, j);
-                    pixel.Green += Convert.ToInt32(gUd.Value);
-
-                    if (pixel.Green > 255)
-                        pixel.Green = 255;
-                    else if (pixel.Green < 0)
-                        pixel.Green = 0;
-
-                    adjustedCtImage.setPixel(i, j, pixel);
-                }
-            }
-
-            adjustedImg = adjustedCtImage.getBitmap();
-            newPictureBox.Image = adjustedImg;
+            adjustColors();
         }
 
         private void bUd_ValueChanged(object sender, EventArgs e)
         {
             bBar.Value = Convert.ToInt32(bUd.Value);
 
-            Pixel pixel;
+            adjustColors();
+        }
 
-            for (int i = 0; i < origCtImage.getHeight(); i++)
+        private void contrastUd_ValueChanged(object sender, EventArgs e)
+        {
+            contrastBar.Value = Convert.ToInt32(contrastUd.Value);
+
+            adjustColors();
+        }
+
+        private void gammaUd_ValueChanged(object sender, EventArgs e)
+        {
+            gammaBar.Value = Convert.ToInt32(gammaUd.Value*100);
+
+            for (int i = 0; i < 256; i++)
+                gammaTable[i] = Math.Min(255, (int)((255.0 * Math.Pow(i / 255.0, 1.0 / Convert.ToDouble(gammaUd.Value))) + 0.5));
+    
+            adjustColors();
+        }
+
+        private void saturationUd_ValueChanged(object sender, EventArgs e)
+        {
+            saturationBar.Value = Convert.ToInt32(saturationUd.Value);
+
+            adjustColors();
+        }
+
+        //perform all color adjustments at once on the new image with pixel values from the old images
+        private void adjustColors()
+        {
+            Pixel pixel;
+            double contrastNum;
+
+            for (int i = 0; i < origCImage.getHeight(); i++)
             {
-                for (int j = 0; j < origCtImage.getWidth(); j++)
+                for (int j = 0; j < origCImage.getWidth(); j++)
                 {
-                    pixel = origCtImage.getPixel(i, j);
+                    pixel = origCImage.getPixel(i, j);
+
+                    //gamma
+                    pixel.Red = gammaTable[pixel.Red];
+                    pixel.Green = gammaTable[pixel.Green];
+                    pixel.Blue = gammaTable[pixel.Blue];
+
+                    //brightness adjustment
+                    pixel.Red += Convert.ToInt32(brightnessUd.Value);
+                    pixel.Green += Convert.ToInt32(brightnessUd.Value);
+                    pixel.Blue += Convert.ToInt32(brightnessUd.Value);
+
+                    //color adjustment
+                    pixel.Red += Convert.ToInt32(rUd.Value);
+                    pixel.Green += Convert.ToInt32(gUd.Value);
                     pixel.Blue += Convert.ToInt32(bUd.Value);
+
+                    //contrast
+                    contrastNum = (Convert.ToDouble(contrastUd.Value) + 127.0) / 127.0;
+                    contrastNum *= contrastNum;
+                    pixel.Red = Convert.ToInt32( ((Convert.ToDouble(pixel.Red) / 255.0 - 0.5) * contrastNum + 0.5 ) * 255.0);
+                    pixel.Green = Convert.ToInt32(((Convert.ToDouble(pixel.Green) / 255.0 - 0.5) * contrastNum + 0.5) * 255.0);
+                    pixel.Blue = Convert.ToInt32(((Convert.ToDouble(pixel.Blue) / 255.0 - 0.5) * contrastNum + 0.5) * 255.0);
+
+                    if (pixel.Red > 255)
+                        pixel.Red = 255;
+                    else if (pixel.Red < 0)
+                        pixel.Red = 0;
+
+                    if (pixel.Green > 255)
+                        pixel.Green = 255;
+                    else if (pixel.Green < 0)
+                        pixel.Green = 0;
 
                     if (pixel.Blue > 255)
                         pixel.Blue = 255;
                     else if (pixel.Blue < 0)
                         pixel.Blue = 0;
 
-                    adjustedCtImage.setPixel(i, j, pixel);
+                    ctImage.setPixel(i, j, pixel);
                 }
             }
 
-            adjustedImg = adjustedCtImage.getBitmap();
+            adjustedImg = ctImage.getBitmap();
             newPictureBox.Image = adjustedImg;
         }
 
-        private void contrastUd_ValueChanged(object sender, EventArgs e)
+        //restore all default values
+        private void restoreDefaultsBut_Click(object sender, EventArgs e)
         {
-            contrastBar.Value = Convert.ToInt32(contrastUd.Value);
+            brightnessUd.Value = 0;
+            rUd.Value = 0;
+            gUd.Value = 0;
+            bUd.Value = 0;
+            gammaUd.Value = 1.00m;
+            saturationUd.Value = 0;
+            contrastUd.Value = 0;
         }
 
-        private void gammaUd_ValueChanged(object sender, EventArgs e)
+        //make the "old image" image equal to the current "new image"
+        private void applyOldBut_Click(object sender, EventArgs e)
         {
-            gammaBar.Value = Convert.ToInt32(gammaUd.Value*100);
-        }
-
-        private void saturationUd_ValueChanged(object sender, EventArgs e)
-        {
-            saturationBar.Value = Convert.ToInt32(saturationUd.Value);
+            origPictureBox.Image = adjustedImg;
         }
 
     }

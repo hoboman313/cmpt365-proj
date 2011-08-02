@@ -25,7 +25,6 @@ namespace proj
         }
     }
 
-
     public class CTImage
     {
         private byte[] data;
@@ -47,6 +46,7 @@ namespace proj
 
         public int getHeight() { return height; }
         public int getWidth() { return width; }
+
         public Pixel getPixel(int row, int column)
         {
             int i = row;
@@ -59,6 +59,7 @@ namespace proj
             int blue = data[startDataOffset + startIndex];
             return new Pixel(red, green, blue);
         }
+
         public void setPixel(int row, int column, Pixel pixel)
         {
             row = height - row - 1;
@@ -74,17 +75,46 @@ namespace proj
             return BitmapFromBitmapData(ref data);
         }
 
+        //convert HSV to RGB
+        //code mostly taken from: http://stackoverflow.com/questions/1335426/is-there-a-built-in-c-net-system-api-for-hsv-to-rgb
+        public static Pixel PixelFromHSB(double hue, double saturation, double value)
+        {
+            int hi = Convert.ToInt32(Math.Floor(hue / 60)) % 6;
+            double f = hue / 60 - Math.Floor(hue / 60);
+
+            value = value * 255;
+            int v = Convert.ToInt32(value);
+            int p = Convert.ToInt32(value * (1 - saturation));
+            int q = Convert.ToInt32(value * (1 - f * saturation));
+            int t = Convert.ToInt32(value * (1 - (1 - f) * saturation));
+
+            if (hi == 0)
+                return new Pixel(v, t, p);
+            else if (hi == 1)
+                return new Pixel(q, v, p);
+            else if (hi == 2)
+                return new Pixel(p, v, t);
+            else if (hi == 3)
+                return new Pixel(p, q, v);
+            else if (hi == 4)
+                return new Pixel(t, p, v);
+            else
+                return new Pixel(v, p, q);
+        }
+
         public static Bitmap BitmapFromBitmapData(ref byte[] BitmapData)
         {
             MemoryStream ms = new MemoryStream(BitmapData);
             return (new Bitmap(ms));
         }
+
         public static byte[] BitmapDataFromBitmap(ref Bitmap objBitmap)
         {
             MemoryStream ms = new MemoryStream();
             objBitmap.Save(ms, ImageFormat.Bmp);
             return (ms.GetBuffer());
         }
+
         private static int calculateStride(ref Bitmap bitmap)
         {
             int stride;
@@ -96,5 +126,5 @@ namespace proj
 
             return stride;
         }
-    } 
+    }
 }

@@ -56,6 +56,8 @@
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.saturationUd = new System.Windows.Forms.NumericUpDown();
             this.saturationBar = new System.Windows.Forms.TrackBar();
+            this.restoreDefaultsBut = new System.Windows.Forms.Button();
+            this.applyOldBut = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.newPictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.origPictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.brightnessBar)).BeginInit();
@@ -157,7 +159,7 @@
             // 
             // cancelBut
             // 
-            this.cancelBut.Location = new System.Drawing.Point(267, 436);
+            this.cancelBut.Location = new System.Drawing.Point(342, 438);
             this.cancelBut.Name = "cancelBut";
             this.cancelBut.Size = new System.Drawing.Size(94, 34);
             this.cancelBut.TabIndex = 17;
@@ -167,7 +169,7 @@
             // 
             // okayBut
             // 
-            this.okayBut.Location = new System.Drawing.Point(116, 437);
+            this.okayBut.Location = new System.Drawing.Point(231, 438);
             this.okayBut.Name = "okayBut";
             this.okayBut.Size = new System.Drawing.Size(94, 34);
             this.okayBut.TabIndex = 16;
@@ -440,12 +442,34 @@
             this.saturationBar.TabIndex = 14;
             this.saturationBar.Scroll += new System.EventHandler(this.saturationBar_Scroll);
             // 
+            // restoreDefaultsBut
+            // 
+            this.restoreDefaultsBut.Location = new System.Drawing.Point(62, 419);
+            this.restoreDefaultsBut.Name = "restoreDefaultsBut";
+            this.restoreDefaultsBut.Size = new System.Drawing.Size(105, 26);
+            this.restoreDefaultsBut.TabIndex = 23;
+            this.restoreDefaultsBut.Text = "Restore Defaults";
+            this.restoreDefaultsBut.UseVisualStyleBackColor = true;
+            this.restoreDefaultsBut.Click += new System.EventHandler(this.restoreDefaultsBut_Click);
+            // 
+            // applyOldBut
+            // 
+            this.applyOldBut.Location = new System.Drawing.Point(63, 448);
+            this.applyOldBut.Name = "applyOldBut";
+            this.applyOldBut.Size = new System.Drawing.Size(105, 26);
+            this.applyOldBut.TabIndex = 24;
+            this.applyOldBut.Text = "Apply to Old Image";
+            this.applyOldBut.UseVisualStyleBackColor = true;
+            this.applyOldBut.Click += new System.EventHandler(this.applyOldBut_Click);
+            // 
             // adjustColorsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(454, 484);
             this.ControlBox = false;
+            this.Controls.Add(this.applyOldBut);
+            this.Controls.Add(this.restoreDefaultsBut);
             this.Controls.Add(this.groupBox5);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
@@ -520,5 +544,7 @@
         private System.Windows.Forms.GroupBox groupBox5;
         private System.Windows.Forms.NumericUpDown saturationUd;
         private System.Windows.Forms.TrackBar saturationBar;
+        private System.Windows.Forms.Button restoreDefaultsBut;
+        private System.Windows.Forms.Button applyOldBut;
     }
 }

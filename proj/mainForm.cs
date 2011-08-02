@@ -22,12 +22,12 @@ namespace proj
         ArrayList imagesOnPath = new ArrayList();
         int viewedImageNum, zoomLevel=0, zoomedHeight, zoomedWidth;
         string parentDirectory;
-
+ 
         //constants
         List<string> imageExtensions = new List<string> { ".JPG", ".JPEG", ".BMP", ".GIF", ".PNG" };
         const double zoomRatio = 0.1;
         const int widthPad = 40, heightPad = 86;
-        const string progName="Image Viewer";
+        const string progName="Photo Viewer";
 
         public mainForm()
         {
