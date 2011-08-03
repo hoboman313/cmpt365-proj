@@ -50,12 +50,16 @@ namespace proj
                 imagesOnPath.Add(file.FileName);
                 parentDirectory = Directory.GetParent(file.FileName).ToString();
                 FileInfo[] files = Directory.GetParent(file.FileName).GetFiles();
+                string slash="";
+
+                if (!parentDirectory.EndsWith("\\"))
+                    slash = "\\";
 
                 for (int i = 0; i < files.Length; i++)
                 {
                     if (imageExtensions.Contains(Path.GetExtension(files[i].ToString().ToUpper())) && file.FileName != parentDirectory + files[i].ToString())
                     {
-                        imagesOnPath.Add(parentDirectory+"\\"+files[i].ToString());
+                        imagesOnPath.Add(parentDirectory+slash+files[i].ToString());
                     }
                 }
                 imageToolStripMenuItem.Enabled = true;
@@ -255,6 +259,7 @@ namespace proj
         }
 
         //delete current image
+        //BUG...crash on delete
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (imgName != null)
@@ -487,9 +492,10 @@ namespace proj
             //first make sure that the user selected a rectangle
             if (re.Height!=0 && re.Width!=0 )
             {
-                img = img.Clone(re, img.PixelFormat);
                 origImg.Dispose();
-                origImg = new Bitmap(img);
+                origImg = img.Clone(re, img.PixelFormat);
+                img.Dispose();
+                img = new Bitmap(origImg);
                 pictureBox.Image = img;
                 re.Height = 0;
                 re.Width = 0;
@@ -749,6 +755,30 @@ namespace proj
         private void redEyeReductionToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             redEyeReductionToolStripMenuItem_Click(sender, e);
+        }
+
+        //get basic information about the current image
+        private void informationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (imagesOnPath.Count != 0)
+            {
+                FileInfo info = new FileInfo(imgName);
+
+                MessageBox.Show("Image Name: " + info.Name + "\n" + "\n" +
+                                "Directory: " + info.DirectoryName + "\n" + "\n" +
+                                "Resolution: " + img.HorizontalResolution + " x " + img.VerticalResolution + "\n" + "\n" +
+                                "Dimensions : " + img.Width + " x " + img.Height + "\n" + "\n" +
+                                "Pixel Format : " + img.PixelFormat.ToString().Replace("Format", "") + "\n" + "\n" +
+                                "Size : " + info.Length / 1024 + "." + info.Length % 1024 + " KB ( " + info.Length + " bytes )" + "\n" + "\n" +
+                                "Created : " + info.CreationTime + "\n" + "\n" +
+                                "Last Modified : " + info.LastWriteTime + "\n" + "\n"
+                                , "Image Information");
+            }
+        }
+
+        private void infoButton_Click(object sender, EventArgs e)
+        {
+            informationToolStripMenuItem_Click(sender, e);
         }
     }
 }

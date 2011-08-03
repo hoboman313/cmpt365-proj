@@ -54,6 +54,7 @@
             this.convertToGrayscaleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.negativeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.adjustColorsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.redEyeReductionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.zoomInToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.zoomOutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -76,7 +77,6 @@
             this.pictureBox = new System.Windows.Forms.PictureBox();
             this.contextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.cropToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.redEyeReductionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.redEyeReductionToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -185,6 +185,7 @@
             this.informationToolStripMenuItem.Name = "informationToolStripMenuItem";
             this.informationToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
             this.informationToolStripMenuItem.Text = "Information";
+            this.informationToolStripMenuItem.Click += new System.EventHandler(this.informationToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
@@ -270,6 +271,13 @@
             this.adjustColorsToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
             this.adjustColorsToolStripMenuItem.Text = "Adjust Colors";
             this.adjustColorsToolStripMenuItem.Click += new System.EventHandler(this.adjustColorsToolStripMenuItem_Click);
+            // 
+            // redEyeReductionToolStripMenuItem
+            // 
+            this.redEyeReductionToolStripMenuItem.Name = "redEyeReductionToolStripMenuItem";
+            this.redEyeReductionToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.redEyeReductionToolStripMenuItem.Text = "Red Eye Reduction";
+            this.redEyeReductionToolStripMenuItem.Click += new System.EventHandler(this.redEyeReductionToolStripMenuItem_Click);
             // 
             // viewToolStripMenuItem
             // 
@@ -395,6 +403,7 @@
             this.infoButton.Name = "infoButton";
             this.infoButton.Size = new System.Drawing.Size(23, 22);
             this.infoButton.Text = "Image Info";
+            this.infoButton.Click += new System.EventHandler(this.infoButton_Click);
             // 
             // zoomInButton
             // 
@@ -469,13 +478,6 @@
             this.cropToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
             this.cropToolStripMenuItem.Text = "Crop";
             this.cropToolStripMenuItem.Click += new System.EventHandler(this.cropToolStripMenuItem_Click);
-            // 
-            // redEyeReductionToolStripMenuItem
-            // 
-            this.redEyeReductionToolStripMenuItem.Name = "redEyeReductionToolStripMenuItem";
-            this.redEyeReductionToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
-            this.redEyeReductionToolStripMenuItem.Text = "Red Eye Reduction";
-            this.redEyeReductionToolStripMenuItem.Click += new System.EventHandler(this.redEyeReductionToolStripMenuItem_Click);
             // 
             // redEyeReductionToolStripMenuItem1
             // 
