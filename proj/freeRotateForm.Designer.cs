@@ -68,7 +68,7 @@
             this.rotateBar.Location = new System.Drawing.Point(14, 199);
             this.rotateBar.Maximum = 360;
             this.rotateBar.Name = "rotateBar";
-            this.rotateBar.Size = new System.Drawing.Size(286, 45);
+            this.rotateBar.Size = new System.Drawing.Size(286, 42);
             this.rotateBar.TabIndex = 2;
             this.rotateBar.Scroll += new System.EventHandler(this.rotateBar_Scroll);
             // 
@@ -97,6 +97,7 @@
             // 
             // origPictureBox
             // 
+            this.origPictureBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.origPictureBox.Location = new System.Drawing.Point(0, 29);
             this.origPictureBox.Name = "origPictureBox";
             this.origPictureBox.Size = new System.Drawing.Size(146, 132);
@@ -106,6 +107,7 @@
             // 
             // newPictureBox
             // 
+            this.newPictureBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.newPictureBox.Location = new System.Drawing.Point(175, 29);
             this.newPictureBox.Name = "newPictureBox";
             this.newPictureBox.Size = new System.Drawing.Size(140, 135);
@@ -135,7 +137,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(314, 300);
+            this.ClientSize = new System.Drawing.Size(316, 300);
             this.ControlBox = false;
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);

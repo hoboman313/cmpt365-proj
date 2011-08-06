@@ -247,10 +247,14 @@ namespace proj
             freeRotateForm rotateForm = new freeRotateForm(img);
             rotateForm.ShowDialog();
 
+            img.Dispose();
             img = rotateForm.img;
-            origImg = new Bitmap(rotateForm.img);
+            origImg.Dispose();
+            origImg = new Bitmap(img);
 
             pictureBox.Image = img;
+            mainForm.ActiveForm.Width = img.Width + widthPad;
+            mainForm.ActiveForm.Height = img.Height + heightPad;
         }
 
         private void deleteButton_Click(object sender, EventArgs e)
@@ -658,7 +662,7 @@ namespace proj
         //make the image negative ( 255- R/G/B for each pixel )
         private void negativeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CTImage ctImage = new CTImage(ref img);
+            BitmapHelper ctImage = new BitmapHelper(ref img);
             Pixel pixel;
 
             for (int i = 0; i < ctImage.getHeight(); i++)
@@ -682,7 +686,7 @@ namespace proj
         //convert the image to grayscale
         private void convertToGrayscaleToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CTImage ctImage = new CTImage(ref img);
+            BitmapHelper ctImage = new BitmapHelper(ref img);
             Pixel pixel, tmp=new Pixel(0, 0, 0 );
 
             for (int i = 0; i < ctImage.getHeight(); i++)
@@ -718,7 +722,7 @@ namespace proj
         //code logic from: http://stackoverflow.com/questions/133675/red-eye-reduction-algorithm
         private void redEyeReductionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CTImage ctImage = new CTImage(ref img);
+            BitmapHelper ctImage = new BitmapHelper(ref img);
             Pixel pixel;
             float redIntensity;
 
@@ -734,7 +738,7 @@ namespace proj
                         //Value of red divided by average of blue and green:
                         redIntensity = ((float)pixel.Red / ((pixel.Green + pixel.Blue) / 2));
 
-                        if (redIntensity > 1.5f)  // 1.5 because it gives the best results
+                        if (redIntensity > 2.0f)
                         {
                             // reduce red to the average of blue and green
                             ctImage.setPixel(i, j, new Pixel((pixel.Green + pixel.Blue) / 2, pixel.Green, pixel.Blue));

@@ -25,7 +25,7 @@ namespace proj
         }
     }
 
-    public class CTImage
+    public class BitmapHelper
     {
         private byte[] data;
         private int width;
@@ -36,11 +36,11 @@ namespace proj
         private const int components = 3; //only red, green and blue 
         private const int startDataOffset = 54;
 
-        public CTImage(ref Bitmap bitmap)
+        public BitmapHelper(ref Bitmap bitmap)
         {
             width = bitmap.Width;
             height = bitmap.Height;
-            data = CTImage.BitmapDataFromBitmap(ref bitmap);
+            data = BitmapHelper.BitmapDataFromBitmap(ref bitmap);
             stride = calculateStride(ref bitmap);
         }
 

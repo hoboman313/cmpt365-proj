@@ -12,7 +12,7 @@ namespace proj
     public partial class adjustColorsForm : Form
     {
         public Bitmap img, adjustedImg;
-        CTImage ctImage, origCImage;
+        BitmapHelper ctImage, origCImage;
         int[] gammaTable = new int[256];
 
         public adjustColorsForm(Bitmap bmp)
@@ -22,8 +22,8 @@ namespace proj
             adjustedImg = img;
             origPictureBox.Image = img;
             newPictureBox.Image = adjustedImg;
-            origCImage = new CTImage(ref img);
-            ctImage = new CTImage(ref adjustedImg);
+            origCImage = new BitmapHelper(ref img);
+            ctImage = new BitmapHelper(ref adjustedImg);
 
             //default gamma is 1.00
             for (int i = 0; i < 256; i++)
@@ -188,7 +188,7 @@ namespace proj
                         pixel.Blue = 0;
 
                     double h, s, l;
-                    CTImage.RGB2HSL(pixel, out h, out s, out l);
+                    BitmapHelper.RGB2HSL(pixel, out h, out s, out l);
 
                     s = s + Convert.ToDouble(saturationUd.Value) / 255.0;
 
@@ -197,7 +197,7 @@ namespace proj
                     else if (s < 0)
                         s = 0;
 
-                    pixel = CTImage.HSL2RGB(h, s, l);
+                    pixel = BitmapHelper.HSL2RGB(h, s, l);
 
                     ctImage.setPixel(i, j, pixel);
                 }

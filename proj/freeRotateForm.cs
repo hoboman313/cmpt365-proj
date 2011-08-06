@@ -8,38 +8,51 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.Drawing.Imaging;
 
 namespace proj
 {
     public partial class freeRotateForm : Form
     {
         public Bitmap img, rotatedImg;
+        BitmapHelper helperImg;
 
         public freeRotateForm(Bitmap bmp)
         {
             InitializeComponent();
-            img=bmp;
+            img=new Bitmap(bmp);
             origPictureBox.Image = img;
             newPictureBox.Image = img;
+            helperImg = new BitmapHelper(ref img);
         }
 
-        //code to rotate from: http://www.switchonthecode.com/tutorials/csharp-tutorial-image-editing-rotate
-        private Bitmap rotateImage(Bitmap b, float angle)
+        //rotate image
+        private Bitmap rotateImage(Bitmap img, float angle, Color bgColor)
         {
-            //create a new empty bitmap to hold rotated image
-            Bitmap returnBitmap = new Bitmap(b.Width, b.Height);
-            //make a graphics object from the empty bitmap
-            Graphics g = Graphics.FromImage(returnBitmap);
-            //move rotation point to center of image
-            g.TranslateTransform((float)b.Width / 2, (float)b.Height / 2);
-            //rotate
-            g.RotateTransform(angle);
-            //move image back
-            g.TranslateTransform(-(float)b.Width / 2, -(float)b.Height / 2);
-            //draw passed in image onto graphics object
-            g.DrawImage(b, new Point(0, 0));
+            float height = (float)(Math.Sin((Math.PI / 180) * (angle % 90)) * img.Width + Math.Cos((Math.PI / 180) * (angle % 90)) * img.Height);
+            float width= (float)(Math.Cos((Math.PI / 180) * (angle % 90)) * img.Width + Math.Sin((Math.PI / 180) * (angle % 90)) * img.Height);
 
-            return returnBitmap;
+            //at 90 degrees, height and width change places as the image is on its side now
+            if (angle % 180 >= 90)
+            {
+                float tmp = width;
+                width = height;
+                height = tmp;
+            }
+
+            Bitmap rotated = new Bitmap(Convert.ToInt32(width),Convert.ToInt32(height), img.PixelFormat);
+            Graphics g = Graphics.FromImage(rotated);
+
+
+            g.FillRectangle(new SolidBrush(bgColor),0,0,width,height);
+            g.TranslateTransform(width/2.0f, height / 2.0f);
+            g.RotateTransform(angle);
+            g.TranslateTransform(-width/2.0f, -height/2.0f);
+
+            //lame bug that tries to change the bixel format to 32bppArg if I don't create a new image here
+            g.DrawImage(img,(width - img.Width)/2.0f, (height - img.Height)/2.0f );
+
+            return rotated;
         }
 
         private void okayBut_Click(object sender, EventArgs e)
@@ -56,7 +69,7 @@ namespace proj
         private void rotateBar_Scroll(object sender, EventArgs e)
         {
             rotateNumericUpDown.Value = rotateBar.Value;
-            rotatedImg=rotateImage(img, rotateBar.Value);
+            rotatedImg = rotateImage(img, rotateBar.Value, Color.Black);
 
             newPictureBox.Image = rotatedImg;
         }
@@ -64,7 +77,7 @@ namespace proj
         private void rotateNumericUpDown_ValueChanged(object sender, EventArgs e)
         {
             rotateBar.Value = Convert.ToInt32(rotateNumericUpDown.Value);
-            rotatedImg=rotateImage(img, rotateBar.Value);
+            rotatedImg = rotateImage(img, rotateBar.Value, Color.Black);
 
             newPictureBox.Image = rotatedImg;
         }
