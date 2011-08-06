@@ -210,14 +210,14 @@
             // 
             this.flipVerticalToolStripMenuItem.Name = "flipVerticalToolStripMenuItem";
             this.flipVerticalToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
-            this.flipVerticalToolStripMenuItem.Text = "Vertical Flip";
+            this.flipVerticalToolStripMenuItem.Text = "Horizontal Flip";
             this.flipVerticalToolStripMenuItem.Click += new System.EventHandler(this.flipVerticalToolStripMenuItem_Click);
             // 
             // horizontalFlipToolStripMenuItem
             // 
             this.horizontalFlipToolStripMenuItem.Name = "horizontalFlipToolStripMenuItem";
             this.horizontalFlipToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
-            this.horizontalFlipToolStripMenuItem.Text = "Horizontal Flip";
+            this.horizontalFlipToolStripMenuItem.Text = "Vertical Flip";
             this.horizontalFlipToolStripMenuItem.Click += new System.EventHandler(this.horizontalFlipToolStripMenuItem_Click);
             // 
             // freeRotateToolStripMenuItem
