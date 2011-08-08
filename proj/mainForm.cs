@@ -856,8 +856,8 @@ namespace proj
                         homography = ransac.Estimate(correlationPoints1, correlationPoints2);
 
                         // Merge the images
-                        Blend blend = new Blend(homography, img2);
-                        img = blend.Apply(img1);
+                        Blend blend = new Blend(homography, img1);
+                        img = blend.Apply(img2);
 
                         //save the image properly and resize main form
                         origImg.Dispose();
