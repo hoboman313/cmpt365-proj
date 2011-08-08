@@ -797,52 +797,58 @@ namespace proj
             informationToolStripMenuItem_Click(sender, e);
         }
 
-        // PANORAMIC STICHING CODE HERE - edited, tested and working, but needs to be further revised
+        // PANORAMIC STICHING CODE
+        // Accord.NET and AForge.NET frameworks and code examples provided from
+        // http://www.codeproject.com/KB/recipes/automatic_panoramas.aspx
         private void panoramicStitchingToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            // Save a copy of the current image, ask user to open another image to merge with
             Bitmap img2 = img;
             openToolStripMenuItem_Click(sender, e);
-            Bitmap img1 = img;
 
-            AForge.IntPoint[] harrisPoints1;
-            AForge.IntPoint[] harrisPoints2;
+            // Check whether the current loaded image is different
+            // (If the user cancelled the open image operation, the current image in the viewer
+            // is still the same image object)
+            if (img2 != img)
+            {
+                Bitmap img1 = img;
 
-            AForge.IntPoint[] correlationPoints1;
-            AForge.IntPoint[] correlationPoints2;
+                AForge.IntPoint[] harrisPoints1;
+                AForge.IntPoint[] harrisPoints2;
 
-            MatrixH homography;
+                AForge.IntPoint[] correlationPoints1;
+                AForge.IntPoint[] correlationPoints2;
 
-            // Step 1: Detect feature points using Harris Corners Detector
-            HarrisCornersDetector harris = new HarrisCornersDetector(0.04f, 1000f);
-            harrisPoints1 = harris.ProcessImage(img1).ToArray();
-            harrisPoints2 = harris.ProcessImage(img2).ToArray();
+                MatrixH homography;
 
-            // Step 2: Match feature points using a correlation measure
-            CorrelationMatching matcher = new CorrelationMatching(9);
-            AForge.IntPoint[][] matches = matcher.Match(img1, img2, harrisPoints1, harrisPoints2);
+                // Use Harris Corners Detector to find points of interest
+                HarrisCornersDetector harris = new HarrisCornersDetector(0.04f, 1000f);
+                harrisPoints1 = harris.ProcessImage(img1).ToArray();
+                harrisPoints2 = harris.ProcessImage(img2).ToArray();
 
-            // Get the two sets of points
-            correlationPoints1 = matches[0];
-            correlationPoints2 = matches[1];
+                // Match detected points using correlation
+                CorrelationMatching matcher = new CorrelationMatching(9);
+                AForge.IntPoint[][] matches = matcher.Match(img1, img2, harrisPoints1, harrisPoints2);
 
-            // Step 3: Create the homography matrix using a robust estimator
-            RansacHomographyEstimator ransac = new RansacHomographyEstimator(0.001, 0.99);
-            homography = ransac.Estimate(correlationPoints1, correlationPoints2);
+                // Separate the two arrays
+                correlationPoints1 = matches[0];
+                correlationPoints2 = matches[1];
 
-            // Plot RANSAC results against correlation results
-            AForge.IntPoint[] inliers1 = correlationPoints1.Submatrix(ransac.Inliers);
-            AForge.IntPoint[] inliers2 = correlationPoints2.Submatrix(ransac.Inliers);
+                // Find homography matrix using RANSAC algorithm
+                RansacHomographyEstimator ransac = new RansacHomographyEstimator(0.001, 0.99);
+                homography = ransac.Estimate(correlationPoints1, correlationPoints2);
 
-            // Step 4: Project and blend the second image using the homography
-            Blend blend = new Blend(homography, img1);
-            
-            //save the image properly and resize main form
-            img = blend.Apply(img2);
-            origImg.Dispose();
-            origImg = new Bitmap(img);
-            pictureBox.Image = img;
-            mainForm.ActiveForm.Width = img.Width + widthPad;
-            mainForm.ActiveForm.Height = img.Height + heightPad;
+                // Merge the images
+                Blend blend = new Blend(homography, img1);
+                img = blend.Apply(img2);
+
+                //save the image properly and resize main form
+                origImg.Dispose();
+                origImg = new Bitmap(img);
+                pictureBox.Image = img;
+                mainForm.ActiveForm.Width = img.Width + widthPad;
+                mainForm.ActiveForm.Height = img.Height + heightPad;
+            }
         }
     }
 }
