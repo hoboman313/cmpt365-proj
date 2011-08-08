@@ -1,3 +1,5 @@
 The final executable and all of its dependencies can be found ( and run out of ) the /exe/ directory. The executable further requires the .NET Framework to be installed.
 
 The project report can be found in the /docs/ folder.
+
+Some images that can be used to try out the application can be found in the /test-pics/ folder.

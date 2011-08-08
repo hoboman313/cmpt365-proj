@@ -65,6 +65,7 @@ namespace proj
                         imagesOnPath.Add(parentDirectory+slash+files[i].ToString());
                     }
                 }
+
                 imageToolStripMenuItem.Enabled = true;
                 viewToolStripMenuItem.Enabled = true;
                 openImage(file.FileName);
@@ -506,6 +507,14 @@ namespace proj
                 pictureBox.Image = img;
                 re.Height = 0;
                 re.Width = 0;
+                scaleRight.Height = 0;
+                scaleRight.Width = 0;
+                scaleLeft.Height = 0;
+                scaleLeft.Width = 0;
+                scaleTop.Height = 0;
+                scaleTop.Width = 0;
+                scaleBot.Height = 0;
+                scaleBot.Width = 0;
                 pictureBox.Invalidate();
             }
             else
@@ -791,7 +800,6 @@ namespace proj
         // PANORAMIC STICHING CODE HERE - edited, tested and working, but needs to be further revised
         private void panoramicStitchingToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            
             Bitmap img2 = img;
             openToolStripMenuItem_Click(sender, e);
             Bitmap img1 = img;
@@ -827,8 +835,14 @@ namespace proj
 
             // Step 4: Project and blend the second image using the homography
             Blend blend = new Blend(homography, img1);
-            pictureBox.Image = blend.Apply(img2);
-             
+            
+            //save the image properly and resize main form
+            img = blend.Apply(img2);
+            origImg.Dispose();
+            origImg = new Bitmap(img);
+            pictureBox.Image = img;
+            mainForm.ActiveForm.Width = img.Width + widthPad;
+            mainForm.ActiveForm.Height = img.Height + heightPad;
         }
     }
 }
